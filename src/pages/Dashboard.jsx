@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import api from '../utils/api'
-import { Plus, Eye, Clock } from 'lucide-react'
+import { Plus, Eye, Clock, ArrowLeft } from 'lucide-react'
 
 const STATUS_CLASS = {
   'Under Review': 'badge-review', 'Shortlisted': 'badge-shortlisted',
@@ -13,6 +13,7 @@ const STATUS_CLASS = {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [ideas, setIdeas] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -25,15 +26,18 @@ export default function Dashboard() {
       <Navbar />
       <div className="page">
         <div className="container">
-          <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <div>
-              <p className="section-title">Welcome back</p>
-              <h1 className="page-title">{user?.name}</h1>
-              <p className="page-subtitle">{user?.email} {user?.organization ? `· ${user.organization}` : ''}</p>
+          <button onClick={() => navigate(-1)} style={{ display:"flex", alignItems:"center", gap:6, background:"none", border:"none", cursor:"pointer", color:"var(--text-dim)", fontSize:13, margin:"24px 0 0", padding:0, fontFamily:"inherit" }}></button>
+          <div className="page-header">
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:12 }}>
+              <div>
+                <p className="section-title">Welcome back</p>
+                <h1 className="page-title">{user?.name}</h1>
+                <p className="page-subtitle">{user?.email} {user?.organization ? `· ${user.organization}` : ''}</p>
+              </div>
+              <Link to="/submit" className="btn btn-gold" style={{ flexShrink:0, alignSelf:'flex-end' }}>
+                <Plus size={16} /> Submit Idea
+              </Link>
             </div>
-            <Link to="/submit" className="btn btn-gold">
-              <Plus size={16} /> Submit Idea
-            </Link>
           </div>
 
           {/* Stats */}

@@ -93,7 +93,7 @@ export default function AdminIdeaDetail() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 24, alignItems: 'start' }} className="admin-detail-grid">
             {/* Main */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Participant */}

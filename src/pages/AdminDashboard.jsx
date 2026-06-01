@@ -93,10 +93,10 @@ export default function AdminDashboard() {
                       <th>ID</th>
                       <th>Title</th>
                       <th>Participant</th>
-                      <th>Category</th>
-                      <th>Score</th>
+                      <th className="admin-table-hide">Category</th>
+                      <th className="admin-table-hide">Score</th>
                       <th>Status</th>
-                      <th>Date</th>
+                      <th className="admin-table-hide">Date</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -109,12 +109,12 @@ export default function AdminDashboard() {
                           <div style={{ fontSize: 13 }}>{idea.submitter_name}</div>
                           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{idea.submitter_email}</div>
                         </td>
-                        <td style={{ fontSize: 12, color: 'var(--text-dim)' }}>{idea.category}</td>
-                        <td style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: idea.evaluation_score ? 'var(--gold)' : 'var(--text-muted)' }}>
+                        <td style={{ fontSize: 12, color: 'var(--text-dim)' }} className="admin-table-hide">{idea.category}</td>
+                        <td style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: idea.evaluation_score ? 'var(--gold)' : 'var(--text-muted)' }} className="admin-table-hide">
                           {idea.evaluation_score ? idea.evaluation_score.toFixed(1) : '—'}
                         </td>
                         <td><span className={`badge ${STATUS_CLASS[idea.status] || 'badge-review'}`}>{idea.status}</span></td>
-                        <td style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        <td style={{ fontSize: 11, color: 'var(--text-muted)' }} className="admin-table-hide">
                           {new Date(idea.submitted_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                         </td>
                         <td>

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
-import { Upload, X, FileText, ArrowRight, HelpCircle } from 'lucide-react'
+import { Upload, X, FileText, ArrowRight, ArrowLeft, HelpCircle } from 'lucide-react'
 
 const CATEGORIES = ['AI / ML', 'SaaS', 'FinTech', 'EdTech', 'HealthTech', 'Sustainability', 'Productivity', 'Other']
 const STAGES = ['Concept', 'Prototype', 'MVP', 'Working Product']
@@ -46,28 +46,43 @@ const MIN_LENGTH = {
 function Tooltip({ text }) {
   const [open, setOpen] = useState(false)
   return (
-    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+    <>
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 4px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 4px', color: open ? 'var(--gold)' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}
         aria-label="Help"
       >
         <HelpCircle size={13} />
       </button>
       {open && (
-        <span style={{
-          position: 'absolute', left: 20, top: -4, zIndex: 50,
-          background: '#0f0f0f', color: '#fff', fontSize: 12, lineHeight: 1.6,
-          padding: '10px 14px', borderRadius: 8, width: 260,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
-          pointerEvents: 'none',
-        }}>
-          {text}
-        </span>
+        <>
+          <span
+            onClick={() => setOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 48 }}
+          />
+          <span style={{
+            position: 'fixed',
+            bottom: 16,
+            left: 16,
+            right: 16,
+            zIndex: 49,
+            background: '#1a1535',
+            color: '#f0ede8',
+            fontSize: 13,
+            lineHeight: 1.65,
+            padding: '14px 16px',
+            borderRadius: 12,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}>
+            <span style={{ display: 'block', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#8f6ee8', marginBottom: 6 }}>What we expect</span>
+            {text}
+          </span>
+        </>
       )}
-    </span>
+    </>
   )
 }
 
@@ -135,7 +150,7 @@ function Field({ label, required, helpKey, children, value, minLen }) {
 }
 
 // ── Terms Step ────────────────────────────────────────────────────────────────
-function TermsStep({ onAccept }) {
+function TermsStep({ onAccept, onBack }) {
   const [checked, setChecked] = useState(false)
   return (
     <div style={{ maxWidth: 680, margin: '0 auto' }}>
@@ -154,7 +169,10 @@ function TermsStep({ onAccept }) {
           <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} />
           <span className="check-row-text">I have read and agree to all the Ideathon Terms and Conditions.</span>
         </label>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button className="btn btn-ghost" onClick={onBack}>
+            <ArrowLeft size={15} /> Back
+          </button>
           <button className="btn btn-gold" onClick={onAccept} disabled={!checked}>
             Continue <ArrowRight size={15} />
           </button>
@@ -423,6 +441,7 @@ const emptyIdea = {
 }
 
 export default function SubmitIdea() {
+  const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [ideaData, setIdeaData] = useState(emptyIdea)
   const [files, setFiles] = useState([])
@@ -472,7 +491,7 @@ export default function SubmitIdea() {
 
           {/* Content — full width on large screens, capped at 860 for readability */}
           <div style={{ maxWidth: step === 0 ? 680 : 860, margin: '0 auto' }}>
-            {step === 0 && <TermsStep onAccept={() => setStep(1)} />}
+            {step === 0 && <TermsStep onAccept={() => setStep(1)} onBack={() => navigate('/dashboard')} />}
             {step === 1 && <IdeaForm data={ideaData} setData={setIdeaData} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
             {step === 2 && <FilesStep data={ideaData} setData={setIdeaData} files={files} setFiles={setFiles} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
             {step === 3 && (
