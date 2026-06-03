@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import { ArrowLeft, FileText, ExternalLink, Star } from 'lucide-react'
@@ -96,12 +97,11 @@ export default function AdminIdeaDetail() {
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 24, alignItems: 'start' }} className="admin-detail-grid">
             {/* Main */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Participant */}
+              {/* Participant — email removed */}
               <div className="card">
                 <h3 style={{ fontWeight: 600, marginBottom: 14 }}>Participant</h3>
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 14 }}>
                   <div><div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Name</div><div>{idea.submitter_name}</div></div>
-                  <div><div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</div><div>{idea.submitter_email}</div></div>
                   {idea.submitter_phone && <div><div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Phone</div><div>{idea.submitter_phone}</div></div>}
                   {idea.organization && <div><div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Org</div><div>{idea.organization}</div></div>}
                   {idea.department && <div><div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dept</div><div>{idea.department}</div></div>}
@@ -116,7 +116,6 @@ export default function AdminIdeaDetail() {
                 <Row k="Current Stage" v={idea.current_stage} />
                 <Row k="Problem Statement" v={idea.problem_statement} />
                 <Row k="Proposed Solution" v={idea.proposed_solution} />
-                <Row k="Idea Summary" v={idea.idea_summary} />
                 <Row k="Target Audience" v={idea.target_audience} />
                 <Row k="Market Opportunity" v={idea.market_opportunity} />
                 <Row k="Competitive Advantage" v={idea.competitive_advantage} />
@@ -217,6 +216,7 @@ export default function AdminIdeaDetail() {
         </div>
         <div style={{ height: 60 }} />
       </div>
+      <Footer />
     </>
   )
 }

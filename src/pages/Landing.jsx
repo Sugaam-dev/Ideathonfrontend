@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import { Lightbulb, Trophy, Rocket, Users, ArrowRight, Star, ChevronRight, Zap } from 'lucide-react'
 
 const STEPS = [
@@ -149,19 +150,10 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── Footer ── */}
-        <footer style={{ padding:'20px clamp(20px,5vw,72px)', borderTop:'1px solid var(--border)', background:'#fff' }}>
-          <div style={{ maxWidth:1000, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:10 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>PMRG Solution</div>
-            <div style={{ display:'flex', gap:16, fontSize:12, color:'var(--text-muted)', flexWrap:'wrap' }}>
-              <span style={{ cursor:'pointer' }}>Privacy Policy</span>
-              <span style={{ cursor:'pointer' }}>Terms & Conditions</span>
-              <span style={{ cursor:'pointer' }}>Contact Us</span>
-            </div>
-          </div>
-        </footer>
-
       </main>
+
+      {/* Shared Footer component — replaces old inline footer */}
+      <Footer />
     </>
   )
 }

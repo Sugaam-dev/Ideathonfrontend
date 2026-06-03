@@ -2,9 +2,10 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
-import { Upload, X, FileText, ArrowRight, ArrowLeft, HelpCircle } from 'lucide-react'
+import { Upload, X, FileText, ArrowRight, ArrowLeft, HelpCircle, Info } from 'lucide-react'
 
 const CATEGORIES = ['AI / ML', 'SaaS', 'FinTech', 'EdTech', 'HealthTech', 'Sustainability', 'Productivity', 'Other']
 const STAGES = ['Concept', 'Prototype', 'MVP', 'Working Product']
@@ -24,16 +25,25 @@ const HELP = {
   scalability: 'Can this idea grow beyond its initial scope? Explain how it could serve more users, expand to new markets, or increase revenue without proportional increases in cost.',
   business_impact: 'What measurable value will this create for PMRG or its clients? Think in terms of revenue, cost savings, efficiency gains, or user growth.',
   tech_requirements: 'What technologies, tools, platforms, or infrastructure will be needed to build this? E.g. "React frontend, Python backend, OpenAI API, cloud hosting".',
-  idea_summary: 'A short elevator pitch — explain your idea in 2–4 sentences as if telling it to someone who has never heard of it before.',
   problem_statement: 'Describe the specific pain point or gap that exists today. Who faces this problem and how does it affect them?',
   proposed_solution: 'Explain clearly how your idea solves the problem described above. What will it do and how will it work?',
+}
+
+const MAX_LENGTH = {
+  title: 1200,
+  problem_statement: 6000,
+  proposed_solution: 30000,
+  target_audience: 3000,
+  market_opportunity: 3000,
+  competitive_advantage: 3000,
+  business_impact: 3000,
+  scalability: 3000,
 }
 
 const MIN_LENGTH = {
   title: 10,
   problem_statement: 80,
   proposed_solution: 80,
-  idea_summary: 80,
   target_audience: 30,
   market_opportunity: 50,
   competitive_advantage: 50,
@@ -58,23 +68,11 @@ function Tooltip({ text }) {
       </button>
       {open && (
         <>
-          <span
-            onClick={() => setOpen(false)}
-            style={{ position: 'fixed', inset: 0, zIndex: 48 }}
-          />
+          <span onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 48 }} />
           <span style={{
-            position: 'fixed',
-            bottom: 16,
-            left: 16,
-            right: 16,
-            zIndex: 49,
-            background: '#1a1535',
-            color: '#f0ede8',
-            fontSize: 13,
-            lineHeight: 1.65,
-            padding: '14px 16px',
-            borderRadius: 12,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 49,
+            background: '#1a1535', color: '#f0ede8', fontSize: 13, lineHeight: 1.65,
+            padding: '14px 16px', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
             border: '1px solid rgba(255,255,255,0.1)',
           }}>
             <span style={{ display: 'block', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#8f6ee8', marginBottom: 6 }}>What we expect</span>
@@ -86,11 +84,10 @@ function Tooltip({ text }) {
   )
 }
 
-// ── Step Bar (no Terms step) ──────────────────────────────────────────────────
+// ── Step Bar ──────────────────────────────────────────────────────────────────
 function StepBar({ step }) {
-  // step 0 = Terms (hidden), step 1–3 shown as 1–3
   const steps = ['Idea Details', 'Files & Links', 'Review & Submit']
-  const visual = step - 1 // step 1 → index 0, etc.
+  const visual = step - 1
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 32 }}>
       {steps.map((s, i) => (
@@ -123,10 +120,13 @@ function StepBar({ step }) {
 }
 
 // ── Field with optional help + char counter ───────────────────────────────────
-function Field({ label, required, helpKey, children, value, minLen }) {
-  const len = (value || '').trim().length
+function Field({ label, required, helpKey, children, value, minLen, maxLen }) {
+  const len = (value || '').length
+  const trimLen = (value || '').trim().length
   const min = minLen || MIN_LENGTH[helpKey] || 0
-  const short = min > 0 && len > 0 && len < min
+  const max = maxLen || MAX_LENGTH[helpKey] || 0
+  const short = min > 0 && trimLen > 0 && trimLen < min
+  const over = max > 0 && len > max
   return (
     <div className="form-group">
       <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -135,16 +135,16 @@ function Field({ label, required, helpKey, children, value, minLen }) {
         {helpKey && HELP[helpKey] && <Tooltip text={HELP[helpKey]} />}
       </label>
       {children}
-      {min > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
-          <span style={{ fontSize: 11, color: short ? '#cc3333' : 'var(--text-muted)' }}>
-            {short ? `Minimum ${min} characters required` : ''}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+        <span style={{ fontSize: 11, color: short ? '#cc3333' : over ? '#cc3333' : 'var(--text-muted)' }}>
+          {short ? `Minimum ${min} characters required` : over ? `Exceeds maximum of ${max} characters` : ''}
+        </span>
+        {max > 0 && (
+          <span style={{ fontSize: 11, color: over ? '#cc3333' : len >= min ? 'var(--text-muted)' : '#cc3333' }}>
+            {len}/{max}
           </span>
-          <span style={{ fontSize: 11, color: len >= min ? 'var(--text-muted)' : '#cc3333' }}>
-            {len}/{min}
-          </span>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -157,7 +157,12 @@ function TermsStep({ onAccept, onBack }) {
       <div className="card">
         <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6, letterSpacing: '-0.02em' }}>Terms & Conditions</h2>
         <p style={{ color: 'var(--text-dim)', fontSize: 13, marginBottom: 24 }}>Please read and accept the following before submitting your idea.</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24,
+          maxHeight: 320, overflowY: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }} className="terms-scroll">
           {TERMS.map(t => (
             <div key={t.title} style={{ padding: '12px 14px', background: 'var(--bg2)', borderRadius: 8, borderLeft: '3px solid #0f0f0f' }}>
               <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{t.title}</div>
@@ -170,12 +175,8 @@ function TermsStep({ onAccept, onBack }) {
           <span className="check-row-text">I have read and agree to all the Ideathon Terms and Conditions.</span>
         </label>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button className="btn btn-ghost" onClick={onBack}>
-            <ArrowLeft size={15} /> Back
-          </button>
-          <button className="btn btn-gold" onClick={onAccept} disabled={!checked}>
-            Continue <ArrowRight size={15} />
-          </button>
+          <button className="btn btn-ghost" onClick={onBack}><ArrowLeft size={15} /> Back</button>
+          <button className="btn btn-gold" onClick={onAccept} disabled={!checked}>Continue <ArrowRight size={15} /></button>
         </div>
       </div>
     </div>
@@ -184,10 +185,14 @@ function TermsStep({ onAccept, onBack }) {
 
 // ── Idea Form ─────────────────────────────────────────────────────────────────
 function IdeaForm({ data, setData, onNext, onBack }) {
-  const set = k => e => setData(d => ({ ...d, [k]: e.target.value }))
+  const set = k => e => {
+    const max = MAX_LENGTH[k]
+    if (max && e.target.value.length > max) return
+    setData(d => ({ ...d, [k]: e.target.value }))
+  }
 
   const validate = () => {
-    const required = ['title', 'problem_statement', 'proposed_solution', 'category', 'idea_summary', 'target_audience', 'current_stage']
+    const required = ['title', 'problem_statement', 'proposed_solution', 'category', 'target_audience', 'current_stage']
     for (const k of required) {
       if (!data[k] || !data[k].trim()) { toast.error('Please fill in all required fields'); return false }
     }
@@ -208,18 +213,18 @@ function IdeaForm({ data, setData, onNext, onBack }) {
       <p className="section-title">Basic Information</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
         <div style={{ gridColumn: '1/-1' }}>
-          <Field label="Idea Title" required helpKey="title" value={data.title} minLen={MIN_LENGTH.title}>
+          <Field label="Idea Title" required helpKey="title" value={data.title} minLen={MIN_LENGTH.title} maxLen={MAX_LENGTH.title}>
             <input className="form-input" value={data.title} onChange={set('title')} placeholder="A compelling name for your idea" />
           </Field>
         </div>
         <div style={{ gridColumn: '1/-1' }}>
-          <Field label="Problem Statement" required helpKey="problem_statement" value={data.problem_statement} minLen={MIN_LENGTH.problem_statement}>
-            <textarea className="form-textarea" value={data.problem_statement} onChange={set('problem_statement')} placeholder="What specific problem does this solve?" rows={3} />
+          <Field label="Problem Statement" required helpKey="problem_statement" value={data.problem_statement} minLen={MIN_LENGTH.problem_statement} maxLen={MAX_LENGTH.problem_statement}>
+            <textarea className="form-textarea" value={data.problem_statement} onChange={set('problem_statement')} placeholder="What specific problem does this solve?" rows={4} />
           </Field>
         </div>
         <div style={{ gridColumn: '1/-1' }}>
-          <Field label="Proposed Solution" required helpKey="proposed_solution" value={data.proposed_solution} minLen={MIN_LENGTH.proposed_solution}>
-            <textarea className="form-textarea" value={data.proposed_solution} onChange={set('proposed_solution')} placeholder="How does your idea solve the problem?" rows={3} />
+          <Field label="Proposed Solution" required helpKey="proposed_solution" value={data.proposed_solution} minLen={MIN_LENGTH.proposed_solution} maxLen={MAX_LENGTH.proposed_solution}>
+            <textarea className="form-textarea" value={data.proposed_solution} onChange={set('proposed_solution')} placeholder="How does your idea solve the problem?" rows={6} />
           </Field>
         </div>
         <div>
@@ -243,18 +248,15 @@ function IdeaForm({ data, setData, onNext, onBack }) {
       <div className="divider" />
       <p className="section-title">Detailed Description</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
-        <Field label="Idea Summary" required helpKey="idea_summary" value={data.idea_summary} minLen={MIN_LENGTH.idea_summary}>
-          <textarea className="form-textarea" value={data.idea_summary} onChange={set('idea_summary')} placeholder="Concise overview — explain as if to someone unfamiliar" rows={3} />
-        </Field>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <Field label="Target Audience" required helpKey="target_audience" value={data.target_audience} minLen={MIN_LENGTH.target_audience}>
-            <textarea className="form-textarea" value={data.target_audience} onChange={set('target_audience')} placeholder="Who will use or benefit from this?" rows={2} />
+          <Field label="Target Audience" required helpKey="target_audience" value={data.target_audience} minLen={MIN_LENGTH.target_audience} maxLen={MAX_LENGTH.target_audience}>
+            <textarea className="form-textarea" value={data.target_audience} onChange={set('target_audience')} placeholder="Who will use or benefit from this?" rows={3} />
           </Field>
-          <Field label="Market Opportunity" helpKey="market_opportunity" value={data.market_opportunity} minLen={MIN_LENGTH.market_opportunity}>
-            <textarea className="form-textarea" value={data.market_opportunity} onChange={set('market_opportunity')} placeholder="Market size, growth potential…" rows={2} />
+          <Field label="Market Opportunity" helpKey="market_opportunity" value={data.market_opportunity} minLen={MIN_LENGTH.market_opportunity} maxLen={MAX_LENGTH.market_opportunity}>
+            <textarea className="form-textarea" value={data.market_opportunity} onChange={set('market_opportunity')} placeholder="Market size, growth potential…" rows={3} />
           </Field>
-          <Field label="Competitive Advantage" helpKey="competitive_advantage" value={data.competitive_advantage} minLen={MIN_LENGTH.competitive_advantage}>
-            <textarea className="form-textarea" value={data.competitive_advantage} onChange={set('competitive_advantage')} placeholder="Why better than existing solutions?" rows={2} />
+          <Field label="Competitive Advantage" helpKey="competitive_advantage" value={data.competitive_advantage} minLen={MIN_LENGTH.competitive_advantage} maxLen={MAX_LENGTH.competitive_advantage}>
+            <textarea className="form-textarea" value={data.competitive_advantage} onChange={set('competitive_advantage')} placeholder="Why better than existing solutions?" rows={3} />
           </Field>
         </div>
       </div>
@@ -262,11 +264,11 @@ function IdeaForm({ data, setData, onNext, onBack }) {
       <div className="divider" />
       <p className="section-title">Impact Assessment</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <Field label="Expected Business Impact" helpKey="business_impact" value={data.business_impact} minLen={MIN_LENGTH.business_impact}>
-          <textarea className="form-textarea" value={data.business_impact} onChange={set('business_impact')} placeholder="Revenue, cost savings, efficiency gains…" rows={2} />
+        <Field label="Expected Business Impact" helpKey="business_impact" value={data.business_impact} minLen={MIN_LENGTH.business_impact} maxLen={MAX_LENGTH.business_impact}>
+          <textarea className="form-textarea" value={data.business_impact} onChange={set('business_impact')} placeholder="Revenue, cost savings, efficiency gains…" rows={3} />
         </Field>
-        <Field label="Scalability Potential" helpKey="scalability" value={data.scalability} minLen={MIN_LENGTH.scalability}>
-          <textarea className="form-textarea" value={data.scalability} onChange={set('scalability')} placeholder="How can this grow?" rows={2} />
+        <Field label="Scalability Potential" helpKey="scalability" value={data.scalability} minLen={MIN_LENGTH.scalability} maxLen={MAX_LENGTH.scalability}>
+          <textarea className="form-textarea" value={data.scalability} onChange={set('scalability')} placeholder="How can this grow?" rows={3} />
         </Field>
         <div style={{ gridColumn: '1/-1' }}>
           <Field label="Technology Requirements" helpKey="tech_requirements" value={data.tech_requirements} minLen={MIN_LENGTH.tech_requirements}>
@@ -354,12 +356,12 @@ function FilesStep({ data, setData, files, setFiles, onNext, onBack }) {
 }
 
 // ── Review Step ───────────────────────────────────────────────────────────────
-function ReviewStep({ data, files, userName, userEmail, userOrg, onBack, onSubmit, loading }) {
+function ReviewStep({ data, files, userName, userOrg, onBack, onSubmit, loading }) {
   const [confirmed, setConfirmed] = useState(false)
   const fields = [
     ['Title', data.title], ['Category', data.category], ['Stage', data.current_stage],
     ['Problem Statement', data.problem_statement], ['Proposed Solution', data.proposed_solution],
-    ['Idea Summary', data.idea_summary], ['Target Audience', data.target_audience],
+    ['Target Audience', data.target_audience],
     ['Market Opportunity', data.market_opportunity], ['Competitive Advantage', data.competitive_advantage],
     ['Business Impact', data.business_impact], ['Scalability', data.scalability],
     ['Tech Requirements', data.tech_requirements],
@@ -372,7 +374,6 @@ function ReviewStep({ data, files, userName, userEmail, userOrg, onBack, onSubmi
       <p className="section-title">Participant</p>
       <div style={{ background: 'var(--bg2)', borderRadius: 8, padding: '12px 14px', marginBottom: 20 }}>
         <div style={{ fontWeight: 600, fontSize: 14 }}>{userName || 'You'}</div>
-        <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>{userEmail}</div>
         {userOrg && <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>{userOrg}</div>}
       </div>
 
@@ -394,6 +395,25 @@ function ReviewStep({ data, files, userName, userEmail, userOrg, onBack, onSubmi
           </div>
         </>
       )}
+
+      {/* Instructions for further proceedings */}
+      <div style={{
+        background: 'rgba(108,61,224,0.05)', border: '1px solid rgba(108,61,224,0.18)',
+        borderRadius: 10, padding: '14px 16px', marginBottom: 20
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <Info size={15} color="var(--gold)" />
+          <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--gold)' }}>What happens after you submit?</span>
+        </div>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.9 }}>
+          <li>Your idea will be marked <strong>Submitted</strong> immediately after submission.</li>
+          <li>You can still <strong>edit your idea</strong> while it is in the <em>Submitted</em> state.</li>
+          <li>Once moved to <strong>Under Review</strong>, no further edits are allowed.</li>
+          <li>The review team typically takes <strong>3–7 working days</strong> to process each submission.</li>
+          <li>The deadline for all submissions is <strong>June 30, 2025</strong>. Submit early to allow time for edits.</li>
+          <li>You will be notified by email once your idea's status changes.</li>
+        </ul>
+      </div>
 
       <label className="check-row" style={{ marginBottom: 20 }}>
         <input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} />
@@ -417,12 +437,27 @@ function SuccessStep({ result }) {
       <div className="card" style={{ textAlign: 'center', padding: '48px 32px' }}>
         <div style={{ width: 56, height: 56, background: 'var(--bg2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 24 }}>✨</div>
         <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 }}>Idea Submitted!</h2>
-        <p style={{ color: 'var(--text-dim)', marginBottom: 28, fontSize: 14 }}>Your idea has been received and is now under review.</p>
-        <div style={{ background: 'var(--bg2)', borderRadius: 10, padding: '16px 20px', marginBottom: 28, display: 'inline-block' }}>
+        <p style={{ color: 'var(--text-dim)', marginBottom: 16, fontSize: 14 }}>Your idea has been received and is now in the <strong>Submitted</strong> state.</p>
+
+        <div style={{ background: 'var(--bg2)', borderRadius: 10, padding: '16px 20px', marginBottom: 20, display: 'inline-block' }}>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Submission ID</div>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 22, fontWeight: 500 }}>{result?.submission_id}</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Status: Under Review</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Status: Submitted</div>
         </div>
+
+        <div style={{
+          background: 'rgba(108,61,224,0.05)', border: '1px solid rgba(108,61,224,0.18)',
+          borderRadius: 10, padding: '14px 16px', marginBottom: 24, textAlign: 'left'
+        }}>
+          <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--gold)', marginBottom: 8 }}>Next Steps</div>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.9 }}>
+            <li>You can <strong>edit your submission</strong> from the Dashboard while it shows <em>Submitted</em>.</li>
+            <li>Once our team moves it to <strong>Under Review</strong>, editing is locked.</li>
+            <li>Submissions close on <strong>June 30, 2025</strong>.</li>
+            <li>Review takes <strong>3–7 working days</strong> — you'll be notified on status change.</li>
+          </ul>
+        </div>
+
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="btn btn-ghost" onClick={() => navigate('/submit')}>Submit Another</button>
           <button className="btn btn-gold" onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
@@ -435,7 +470,7 @@ function SuccessStep({ result }) {
 // ── Main Component ────────────────────────────────────────────────────────────
 const emptyIdea = {
   title: '', problem_statement: '', proposed_solution: '', category: '',
-  idea_summary: '', target_audience: '', market_opportunity: '', competitive_advantage: '',
+  target_audience: '', market_opportunity: '', competitive_advantage: '',
   current_stage: '', business_impact: '', scalability: '', tech_requirements: '',
   figma_link: '', github_link: '', drive_link: '', demo_url: ''
 }
@@ -463,7 +498,11 @@ export default function SubmitIdea() {
       setStep(4)
       toast.success('Idea submitted successfully!')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Submission failed. Is the backend running?')
+      const detail = err.response?.data?.detail
+      const errMsg = Array.isArray(detail)
+        ? detail.map(e => e.msg || JSON.stringify(e)).join(', ')
+        : typeof detail === 'string' ? detail : 'Submission failed. Please check all fields.'
+      toast.error(errMsg)
     } finally {
       setLoading(false)
     }
@@ -472,24 +511,20 @@ export default function SubmitIdea() {
   return (
     <>
       <Navbar />
-      {/* Full-width page, no side padding constraint */}
       <div style={{ minHeight: '100vh', paddingTop: 56, background: 'var(--bg2)' }}>
         <div style={{ maxWidth: '100%', padding: '32px 24px 60px' }}>
 
-          {/* Header */}
           <div style={{ maxWidth: 860, margin: '0 auto 24px' }}>
             <h1 style={{ fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: 4 }}>Submit Your Idea</h1>
             <p style={{ color: 'var(--text-dim)', fontSize: 13 }}>PMRG Solution Ideathon & Innovation Challenge</p>
           </div>
 
-          {/* Step bar shown only for steps 1–3 */}
           {step >= 1 && step <= 3 && (
             <div style={{ maxWidth: 860, margin: '0 auto 24px' }}>
               <StepBar step={step} />
             </div>
           )}
 
-          {/* Content — full width on large screens, capped at 860 for readability */}
           <div style={{ maxWidth: step === 0 ? 680 : 860, margin: '0 auto' }}>
             {step === 0 && <TermsStep onAccept={() => setStep(1)} onBack={() => navigate('/dashboard')} />}
             {step === 1 && <IdeaForm data={ideaData} setData={setIdeaData} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
@@ -497,7 +532,7 @@ export default function SubmitIdea() {
             {step === 3 && (
               <ReviewStep
                 data={ideaData} files={files}
-                userName={user?.name} userEmail={user?.email} userOrg={user?.organization}
+                userName={user?.name} userOrg={user?.organization}
                 onBack={() => setStep(2)} onSubmit={handleSubmit} loading={loading}
               />
             )}
@@ -506,36 +541,23 @@ export default function SubmitIdea() {
         </div>
       </div>
 
-      {/* Responsive + Safari fixes */}
       <style>{`
         @media (max-width: 640px) {
-          .form-input, .form-select, .form-textarea {
-            font-size: 16px !important; /* prevents iOS zoom on focus */
-          }
-          div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-          }
-          div[style*="grid-template-columns: 150px 1fr"] {
-            grid-template-columns: 1fr !important;
-          }
+          .form-input, .form-select, .form-textarea { font-size: 16px !important; }
+          div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+          div[style*="grid-template-columns: 150px 1fr"] { grid-template-columns: 1fr !important; }
         }
-        /* Safari select fix */
         .form-select {
           -webkit-appearance: none;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
           background-repeat: no-repeat;
           background-position: right 11px center;
         }
-        /* Safari textarea resize handle fix */
-        .form-textarea {
-          -webkit-appearance: none;
-        }
-        /* Safari button fix */
-        .btn {
-          -webkit-appearance: none;
-          cursor: pointer;
-        }
+        .form-textarea { -webkit-appearance: none; }
+        .btn { -webkit-appearance: none; cursor: pointer; }
+        .terms-scroll::-webkit-scrollbar { display: none; }
       `}</style>
+      <Footer />
     </>
   )
 }

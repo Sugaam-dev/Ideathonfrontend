@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import api from '../utils/api'
 import { Search, Eye } from 'lucide-react'
 
@@ -130,6 +131,7 @@ export default function AdminDashboard() {
         </div>
         <div style={{ height: 60 }} />
       </div>
+      <Footer />
     </>
   )
 }

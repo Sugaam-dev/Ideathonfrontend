@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import api from '../utils/api'
 import { Plus, Eye, Clock, ArrowLeft } from 'lucide-react'
 
@@ -30,9 +31,8 @@ export default function Dashboard() {
           <div className="page-header">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:12 }}>
               <div>
-                <p className="section-title">Welcome back</p>
+                <p className="section-title">From Imagination to Impact</p>
                 <h1 className="page-title">{user?.name}</h1>
-                <p className="page-subtitle">{user?.email} {user?.organization ? `· ${user.organization}` : ''}</p>
               </div>
               <Link to="/submit" className="btn btn-gold" style={{ flexShrink:0, alignSelf:'flex-end' }}>
                 <Plus size={16} /> Submit Idea
@@ -111,6 +111,7 @@ export default function Dashboard() {
         </div>
         <div style={{ height: 60 }} />
       </div>
+      <Footer />
     </>
   )
 }

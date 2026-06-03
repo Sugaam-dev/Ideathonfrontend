@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import IdeaDetail from './pages/IdeaDetail'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminIdeaDetail from './pages/AdminIdeaDetail'
+import Account from './pages/Account'
 import './index.css'
 
 function ProtectedRoute({ children }) {
@@ -53,6 +54,7 @@ export default function App() {
           {/* Protected */}
           <Route path="/submit" element={<ProtectedRoute><SubmitIdea /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
           <Route path="/ideas/:id" element={<ProtectedRoute><IdeaDetail /></ProtectedRoute>} />
 
           {/* Admin */}

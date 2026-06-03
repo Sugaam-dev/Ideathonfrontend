@@ -1,18 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogOut, LayoutDashboard, Shield, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Shield, Menu, X, User } from 'lucide-react'
 
 export default function Navbar() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-    setMenuOpen(false)
-  }
 
   return (
     <>
@@ -25,10 +19,14 @@ export default function Navbar() {
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border)',
       }}>
-        {/* Brand */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 7, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text)', textDecoration: 'none', flexShrink: 0 }}>
-          <span style={{ width: 6, height: 6, background: 'var(--gold)', borderRadius: '50%', flexShrink: 0 }} />
-          PMRG Ideathon
+        {/* Brand — logo only, no text */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <img
+            src="/pmrg-logo.png"
+            alt="PMRG"
+            style={{ height: 40, width: 'auto', objectFit: 'contain' }}
+            onError={e => { e.target.style.display = 'none' }}
+          />
         </Link>
 
         {/* Desktop links */}
@@ -43,9 +41,9 @@ export default function Navbar() {
               <Link to="/dashboard" style={navLink}>
                 <LayoutDashboard size={13} /> Dashboard
               </Link>
-              <button onClick={handleLogout} style={{ ...navLink, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                <LogOut size={13} /> Logout
-              </button>
+              <Link to="/account" style={{ ...navLink, background: 'var(--bg2)', border: '1px solid var(--border)' }}>
+                <User size={13} /> My Account
+              </Link>
             </>
           ) : (
             <>
@@ -84,9 +82,9 @@ export default function Navbar() {
               <Link to="/dashboard" onClick={() => setMenuOpen(false)} style={mobileLink}>
                 <LayoutDashboard size={15} /> Dashboard
               </Link>
-              <button onClick={handleLogout} style={{ ...mobileLink, border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
-                <LogOut size={15} /> Logout
-              </button>
+              <Link to="/account" onClick={() => setMenuOpen(false)} style={mobileLink}>
+                <User size={15} /> My Account
+              </Link>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
