@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Landing from './pages/Landing'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
 import SubmitIdea from './pages/SubmitIdea'
 import Dashboard from './pages/Dashboard'
 import IdeaDetail from './pages/IdeaDetail'
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
 
           {/* Protected */}
           <Route path="/submit" element={<ProtectedRoute><SubmitIdea /></ProtectedRoute>} />

@@ -52,7 +52,6 @@ export default function Login() {
       <div className="page" style={{ display: 'flex', alignItems: 'center' }}>
         <div className="container-sm" style={{ width: '100%' }}>
           <div style={{ maxWidth: 420, margin: '0 auto' }}>
-            {/* Back button — hidden on mobile */}
             <button
               onClick={() => navigate(-1)}
               className="back-btn-desktop"
@@ -62,7 +61,6 @@ export default function Login() {
             </button>
 
             <h1 className="page-title" style={{ marginBottom: 4 }}>Sign In</h1>
-            {/* Slogan instead of email greeting */}
             <p className="page-subtitle" style={{ marginBottom: 24 }}>
               Turn your ideas into impact — log in to the PMRG Ideathon.
             </p>
@@ -74,27 +72,26 @@ export default function Login() {
                     <label className="form-label">Email Address</label>
                     <input
                       className={`form-input${fieldError ? ' input-error' : ''}`}
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={set('email')}
-                      placeholder="you@example.com"
-                      autoFocus
+                      type="email" required
+                      value={form.email} onChange={set('email')}
+                      placeholder="you@example.com" autoFocus
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Password</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <label className="form-label" style={{ margin: 0 }}>Password</label>
+                      <Link to="/forgot-password" style={{ fontSize: 12, color: 'var(--gold)', fontWeight: 600, textDecoration: 'none' }}>
+                        Forgot password?
+                      </Link>
+                    </div>
                     <input
                       className={`form-input${fieldError ? ' input-error' : ''}`}
-                      type="password"
-                      required
-                      value={form.password}
-                      onChange={set('password')}
+                      type="password" required
+                      value={form.password} onChange={set('password')}
                       placeholder="Your password"
                     />
                   </div>
 
-                  {/* Inline error message for wrong credentials */}
                   {fieldError && (
                     <div className="inline-error">
                       <AlertCircle size={14} style={{ flexShrink: 0, marginTop: 1 }} />
@@ -103,12 +100,8 @@ export default function Login() {
                   )}
                 </div>
 
-                <button
-                  className="btn btn-gold"
-                  type="submit"
-                  disabled={loading}
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
+                <button className="btn btn-gold" type="submit" disabled={loading}
+                  style={{ width: '100%', justifyContent: 'center' }}>
                   {loading ? 'Signing in…' : 'Sign In'}
                 </button>
 
